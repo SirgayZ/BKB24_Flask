@@ -67,12 +67,13 @@ def filter_tasks(tasks, query):
 
 
 def sort_tasks(tasks, order):
-    if not order:
-        return tasks
-    if order == "id":
-        return sorted(tasks, key=lambda x: x["id"])
-    elif order == "-id":
-        return sorted(tasks, key=lambda x: x["id"], reverse=True)
+    if order:
+        if order[0] != "-":
+            return sorted(tasks, key=lambda x: x[order])
+        elif order[0] == "-":
+            return sorted(tasks, key=lambda x: x[order[1:]], reverse = True)
+        else:
+            return tasks
     else:
         return tasks
 
@@ -85,10 +86,7 @@ def get_tasks_lst():
     active_tasks = [task for task in tasks_lst if task["deleted_at"] is None]
     filtered_tasks = filter_tasks(active_tasks, query)
     sorted_tasks = sort_tasks(filtered_tasks, order)
-    if query or order:
-        return jsonify({"tasks": sorted_tasks[offset:offset+10]}), 200
-    else:
-        return jsonify({"tasks": sorted_tasks[offset:offset+10]}), 200
+    return jsonify({"tasks": sorted_tasks[offset:offset+10]}), 200
 
 
 @app.route("/api/v1/tasks/<task_id>", methods=["GET"])
