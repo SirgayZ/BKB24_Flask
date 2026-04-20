@@ -1,0 +1,55 @@
+.error_message {
+    background-color: red;
+}
+
+.success_message {
+    background-color: green;
+}
+
+.info_message {
+    background-color: cyan;
+}
+button.aero {
+    background-color: #05DE68;
+    background:
+        radial-gradient(farthest-corner at bottom center, rgba(255, 255, 255, 0.7), transparent),
+        linear-gradient(to bottom, #04BD59, #05DE68);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
+    border: 1px solid #05DE68;
+    border-radius: 9999px;
+    color: rgba(50, 26, 17, 0.8);
+    cursor: pointer;
+    font-family: "Lucida Grande", "Lucida Sans", sans-serif;
+    font-weight: 600;
+    margin: 1em 1ex;
+    padding: 1ex 1em;
+    position: relative;
+    text-shadow: 0 2px 0.5em #0003;
+    transition: all 300ms;
+    min-height: 19px;
+    letter-spacing: 1px;
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+button.aero::after {
+    content: "";
+    position: absolute;
+    top: 4%;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+    border-radius: 9999px;
+    transition: background 400ms;
+    left: 5px;
+    right: 5px;
+}
+
+button.aero:hover, button.aero:focus {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+}
+
+button.aero:active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
