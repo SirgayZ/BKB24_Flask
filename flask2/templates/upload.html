@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка файла</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1> Загрузка файлов</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit" class="aero"> Загрузить</button>
+        <p>Разрешенные форматы: .txt, .pdf, .png, .jpg, .jpeg, .gif</p>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h2> Загруженные файлы ({{ files|length }})</h2>
+
+    {% if files %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Пользовательское имя файла</th>
+                    <th>Путь к файлу на сервере</th>
+                    <th>Дата загрузки</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files|reverse %}
+                <tr>
+                    <td>{{ file.name }}</td>
+                    <td><a href= http:\\127.0.0.1:5000\{{file.file_path}} class="button">{{file.file_path }}</a></td>
+                    <td>{{ file.upload_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Нет загруженных файлов</p>
+    {% endif %}
+</body>
+</html>
