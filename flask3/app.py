@@ -56,6 +56,8 @@ def login():
 
         for key, user in users_dct.items():
             if user['username'] == username and check_password_hash(user['password'], password):
+                user["last_login"] = datetime.datetime.now().isoformat()
+                save_json("data", "user.json", users_dct)
                 user_obj = User(key, username, user['password'])
                 login_user(user_obj)
                 flash(f'Добро пожаловать, {username}!', 'success')
@@ -130,7 +132,7 @@ def create_admin():
         users_dct['1'] = {
             "username": "admin",
             "password": admin_hash,
-            'created_at': __import__('datetime').datetime.now().isoformat(),
+            'created_at': datetime.datetime.now().isoformat(),
             "last_login": None,
             "is_admin": True
         }
