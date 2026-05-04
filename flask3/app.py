@@ -3,7 +3,6 @@ from flask import (
     render_template,
     redirect,
     url_for,
-    request,
     flash,
 )
 from flask_login import (
@@ -18,6 +17,7 @@ from forms import RegistrationForm, LoginForm
 from utils import load_json, save_json
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
 
 
 app = Flask(__name__)
@@ -26,7 +26,6 @@ app.config["SECRET_KEY"] = os.urandom(256)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-
 
 class User(UserMixin):
     def __init__(self, id, username, password_hash):
@@ -37,7 +36,7 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    users_dct = load_json("flask3\data", "user.json")
+    users_dct = load_json("data", "user.json")
     user_dct = users_dct.get(str(user_id))
     if user_dct is None:
         return None
@@ -53,7 +52,7 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        users_dct = load_json("flask3\data", "user.json")
+        users_dct = load_json("data", "user.json")
 
         for key, user in users_dct.items():
             if user['username'] == username and check_password_hash(user['password'], password):
@@ -88,7 +87,7 @@ def register():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        users_dct = load_json("flask3\data", "user.json")
+        users_dct = load_json("data", "user.json")
 
         for user in users_dct.values():
             if user['username'] == username:
@@ -99,12 +98,12 @@ def register():
         new_user = {
             "username": username,
             "password": generate_password_hash(password),
-            "created_at": __import__('datetime').datetime.now().isoformat(),
+            "created_at": datetime.datetime.now().isoformat(),
             "last_login": None,
             "is_admin": False
         }
         users_dct[new_id] = new_user
-        save_json("flask3\data", "user.json", users_dct)
+        save_json("data", "user.json", users_dct)
         if current_user.is_authenticated:
             flash(f'Пользователь {username} успешно создан', 'success')
             return redirect(url_for("index"))
@@ -120,12 +119,12 @@ def register():
 
 @app.route("/")
 def index():
-    users_dct = load_json("flask3\data", "user.json")
+    users_dct = load_json("data", "user.json")
     return render_template("index.html", users=users_dct, current_user=current_user)
 
 
 def create_admin():
-    users_dct = load_json("flask3\data", "user.json")
+    users_dct = load_json("data", "user.json")
     if not users_dct:
         admin_hash = generate_password_hash('Admin123!')
         users_dct['1'] = {
@@ -135,7 +134,7 @@ def create_admin():
             "last_login": None,
             "is_admin": True
         }
-        save_json("flask3\data", "user.json", users_dct)
+        save_json("data", "user.json", users_dct)
 
 if __name__ == "__main__":
     create_admin()
