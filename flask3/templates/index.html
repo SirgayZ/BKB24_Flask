@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+</head>
+<body>
+    <h1>Добро пожаловать!</h1>
+    {% if current_user.is_authenticated %}
+        <p>Привет, {{ current_user.username }}!</p>
+        <p><a href="{{ url_for('logout') }}">Выйти</a></p>
+        {% if current_user.username == 'admin' %}
+            <p><a href="{{ url_for('register') }}">Создать пользователя</a></p>
+        {% endif %}
+    {% else %}
+        <p>Авторизуйтесь, пожалуйста</p>
+        <p><a href="{{ url_for('login') }}">Войти</a></p>
+        <p><a href="{{ url_for('register') }}">Зарегестрироваться</a></p>
+    {% endif %}
+
+    <h2>Спрятанный раздел</h2>
+    <p><a href="{{ url_for('hidden') }}">Спрятанный раздел</a></p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li style="color: {% if category == 'success' %}green{% elif category == 'danger' %}red{% else %}yellow{% endif %};">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
