@@ -76,7 +76,7 @@ def upload_file():
         file_md5 = calculate_md5_hash(file)
         is_duplicate, duplicate_info = duplicate_check(file_md5, metadata)
         if is_duplicate:
-            flash('Такой файл уже загружен', 'error')
+            flash(f'Такой файл уже загружен {duplicate_info["file_path"]}', 'error')
             return redirect(url_for('upload_file'))
 
         file_uuid = str(uuid.uuid4()).replace('-', '')
