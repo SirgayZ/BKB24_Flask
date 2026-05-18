@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Новости</title>
+</head>
+<body>
+    {% extends 'base.html' %}
+    {% block content %}
+    <h1 class="mb-4">Последние новости</h1>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for news in news_list %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="{{ url_for('view_news', id=news.id) }}" class="text-decoration-none">{{ news.title }}</a>
+                  {% if news.is_private %}
+                    <span class="badge bg-warning text-dark ms-2">Приватно</span>
+                {% endif %}
+              </h5>
+            </div>
+            <div class="card-footer bg-white border-0 pt-0 pb-2">
+              <div>
+                {{ news.created.strftime('%d.%m.%Y %H:%M') }}
+              </div>
+              <div>
+                <a href="{{ url_for('index', category_id=news.category.id) }}" class="badge bg-primary text-light text-decoration-none">{{ news.category.name }}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col">
+          <p>Новостей пока нет.</p>
+        </div>
+      {% endfor %}
+    </div>
+    {% endblock %}
+</body>
+</html>

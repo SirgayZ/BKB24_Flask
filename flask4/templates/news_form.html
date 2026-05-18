@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Новости</title>
+</head>
+<body>
+  {% extends 'base.html' %}
+  {% block content %}
+  <div class="container mt-4">
+      <h2>{{ title }}</h2>
+      <form method="POST" action="">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+              {{ form.title.label(class="form-label") }}
+              {{ form.title(class="form-control") }}
+              {% for error in form.title.errors %}
+                  <span style="color: red">[{{ error }}]</span>
+              {% endfor %}
+          </div>
+
+          <div class="mb-3">
+              {{ form.content.label(class="form-label") }}
+              {{ form.content(class="form-control", rows=8) }}
+              {% for error in form.content.errors %}
+                  <span style="color: red">[{{ error }}]</span>
+              {% endfor %}
+          </div>
+
+          <div class="mb-3">
+              {{ form.category.label(class="form-label") }}
+              {{ form.category(class="form-select") }}
+              {% for error in form.category.errors %}
+                  <span style="color: red">[{{ error }}]</span>
+              {% endfor %}
+          </div>
+
+          <div class="mb-3">
+              {{ form.tags.label(class="form-label") }}
+              {{ form.tags(class="form-control") }}
+              <div class="form-text">Введите теги через запятую</div>
+              {% for error in form.tags.errors %}
+                  <span style="color: red">[{{ error }}]</span>
+              {% endfor %}
+          </div>
+
+          <div class="mb-4">
+              {{ form.submit(class="btn btn-primary") }}
+          </div>
+          <div class="mb-3 form-check">
+            {{ form.is_private(class="form-check-input") }}
+            {{ form.is_private.label(class="form-check-label") }}
+            <div class="form-text">Приватные записи видны только авторизованным пользователям</div>
+        </div>
+      </form>
+  </div>
+  {% endblock %}
+
+</body>
+</html>
