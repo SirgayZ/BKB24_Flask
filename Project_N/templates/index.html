@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <h1 class="mb-4">
+            <i class="fas fa-headphones"></i>
+            {% if selected_tag %}
+                Треки с тегом "{{ selected_tag }}"
+            {% else %}
+                Вся музыка
+            {% endif %}
+        </h1>
+    </div>
+    <div class="col-md-3">
+        {% if selected_tag %}
+            <a href="{{ url_for('index') }}" class="btn btn-secondary mt-2">
+                <i class="fas fa-times"></i> Сбросить фильтр
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-tags"></i> Популярные теги
+            </div>
+            <div class="card-body">
+                {% for tag in popular_tags %}
+                    <a href="{{ url_for('index', tag=tag.name) }}" class="badge bg-secondary text-decoration-none m-1 p-2">
+                        <i class="fas fa-hashtag"></i> {{ tag.name }}
+                    </a>
+                {% endfor %}
+                <hr>
+                <a href="{{ url_for('tags_page') }}" class="btn btn-sm btn-outline-primary w-100">
+                    <i class="fas fa-list"></i> Все теги
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="row">
+            {% for track in tracks %}
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="card-title">{{ track.title }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    <i class="fas fa-user"></i> {{ track.artist }}
+                                </h6>
+                            </div>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('toggle_favorite', track_id=track.id) }}"
+                                   class="btn btn-sm {% if current_user.is_favorite(track.id) %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                    <i class="fas fa-heart"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {% if track.tags %}
+                        <div class="mb-2">
+                            {% for tag in track.tags %}
+                                <a href="{{ url_for('index', tag=tag.name) }}" class="badge bg-info text-dark text-decoration-none">
+                                    <i class="fas fa-tag"></i> {{ tag.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <p class="card-text small">
+                            <i class="fas fa-user-circle"></i> Загрузил: {{ track.user.username }}<br>
+                            <i class="fas fa-calendar"></i> {{ track.created_at.strftime('%d.%m.%Y') }}<br>
+                            <i class="fas fa-play-circle"></i> Прослушиваний: {{ track.plays_count }}
+                        </p>
+
+                        <audio controls class="w-100 mb-2" onplay="playTrack(this, {{ track.id }})">
+                            <source src="{{ url_for('uploaded_file', filename=track.filename) }}" type="audio/mpeg">
+                        </audio>
+
+                        <div class="btn-group w-100">
+                            {% if current_user.is_authenticated %}
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addToPlaylistModal{{ track.id }}">
+                                    <i class="fas fa-plus"></i> В плейлист
+                                </button>
+                                <a href="{{ url_for('uploaded_file', filename=track.filename) }}" class="btn btn-sm btn-success" download>
+                                    <i class="fas fa-download"></i> Скачать
+                                </a>
+                            {% endif %}
+                            {% if current_user.is_authenticated and (current_user.is_admin or current_user.id == track.user_id) %}
+                                <a href="{{ url_for('delete_track', track_id=track.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Удалить трек?')">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated %}
+            <div class="modal fade" id="addToPlaylistModal{{ track.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Добавить в плейлист</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Выберите плейлист для трека "{{ track.title }}":</p>
+                            {% set user_playlists = current_user.playlists %}
+                            {% if user_playlists %}
+                                <div class="list-group">
+                                    {% for playlist in user_playlists %}
+                                        <a href="{{ url_for('add_to_playlist', playlist_id=playlist.id, track_id=track.id) }}"
+                                           class="list-group-item list-group-item-action">
+                                            <i class="fas fa-list"></i> {{ playlist.name }}
+                                            {% if not playlist.is_public %}
+                                                <span class="badge bg-secondary">Приватный</span>
+                                            {% endif %}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">У вас пока нет плейлистов.</p>
+                                <a href="{{ url_for('create_playlist') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Создать плейлист
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="col">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Пока нет загруженной музыки
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('upload_track') }}">Загрузите первый трек!</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

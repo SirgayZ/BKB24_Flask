@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">
+    <i class="fas fa-heart text-danger"></i> Избранные треки
+</h1>
+
+<div class="row">
+    {% for track in tracks %}
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ track.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ track.artist }}</h6>
+                    </div>
+                    <a href="{{ url_for('toggle_favorite', track_id=track.id) }}" class="btn btn-sm btn-danger">
+                        <i class="fas fa-heart-broken"></i> Убрать
+                    </a>
+                </div>
+
+                <audio controls class="w-100 mb-2" onplay="playTrack(this, {{ track.id }})">
+                    <source src="{{ url_for('uploaded_file', filename=track.filename) }}" type="audio/mpeg">
+                </audio>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col">
+        <div class="alert alert-info">
+            <i class="fas fa-heart-broken"></i> У вас нет избранных треков.
+            <a href="{{ url_for('index') }}">Добавьте музыку в избранное</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

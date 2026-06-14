@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-list"></i> Плейлисты</h1>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_playlist') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Создать плейлист
+        </a>
+    {% endif %}
+</div>
+
+{% if my_playlists %}
+<h3 class="mb-3"><i class="fas fa-user"></i> Мои плейлисты</h3>
+<div class="row mb-4">
+    {% for playlist in my_playlists %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ playlist.name }}</h5>
+                <p class="card-text small">{{ playlist.description or 'Нет описания' }}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="fas fa-music"></i> {{ playlist.tracks|length }} треков
+                    </small>
+                </p>
+                <a href="{{ url_for('view_playlist', playlist_id=playlist.id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Открыть
+                </a>
+                <a href="{{ url_for('delete_playlist', playlist_id=playlist.id) }}" class="btn btn-sm btn-danger" 
+                   onclick="return confirm('Удалить плейлист?')">
+                    <i class="fas fa-trash"></i> Удалить
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if public_playlists %}
+<h3 class="mb-3"><i class="fas fa-globe"></i> Публичные плейлисты</h3>
+<div class="row">
+    {% for playlist in public_playlists %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ playlist.name }}</h5>
+                <p class="card-text small">{{ playlist.description or 'Нет описания' }}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="fas fa-user"></i> {{ playlist.owner.username }}<br>
+                        <i class="fas fa-music"></i> {{ playlist.tracks|length }} треков
+                    </small>
+                </p>
+                <a href="{{ url_for('view_playlist', playlist_id=playlist.id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Открыть
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not my_playlists and not public_playlists %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> Пока нет плейлистов.
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_playlist') }}">Создайте первый плейлист</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
