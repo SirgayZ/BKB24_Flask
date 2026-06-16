@@ -1,0 +1,42 @@
+/* Стили кнопки-ссылки */
+.theme-toggle-link {
+    cursor: pointer;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 0.375rem;
+    color: #fff;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.theme-toggle-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+/* Тёмная тема через класс на html */
+html.dark-theme {
+    color-scheme: dark;
+    --bs-body-color: #dee2e6;
+    --bs-body-color-rgb: 222, 226, 230;
+    --bs-body-bg: #212529;
+    --bs-body-bg-rgb: 33, 37, 41;
+    --bs-emphasis-color: #fff;
+    --bs-secondary-color: rgba(222, 226, 230, 0.75);
+    --bs-secondary-bg: #343a40;
+    --bs-tertiary-color: rgba(222, 226, 230, 0.5);
+    --bs-tertiary-bg: #2b3035;
+    --bs-link-color: #6ea8fe;
+    --bs-link-hover-color: #8bb9fe;
+    --bs-border-color: #495057;
+}
+
+/* Плавный переход */
+body, .card, .nav, .alert, .container {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

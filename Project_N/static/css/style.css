@@ -1,0 +1,44 @@
+
+
+/* Базовые переменные (светлая тема) */
+:root {
+  --bg-page: #ffffff;
+  --bg-card: #f8f9fa;
+  --text-main: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --accent: #0d6efd;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Тёмная тема (перезаписывает переменные) */
+html.dark-theme {
+  --bg-page: #121212;
+  --bg-card: #1e1e1e;
+  --text-main: #e9ecef;
+  --text-muted: #adb5bd;
+  --border-color: #495057;
+  --accent: #6ea8fe;
+  --shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* Применяем переменные к существующим элементам */
+body {
+  background-color: var(--bs-body-bg, #fff);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+}
+
+/* Примеры классов, которые уже есть на вашем сайте */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  color: var(--text-main);
+  transition: all 0.3s ease;
+}
+
+.text-secondary { color: var(--text-muted); }
+.btn-primary { background-color: var(--accent); color: #fff; }

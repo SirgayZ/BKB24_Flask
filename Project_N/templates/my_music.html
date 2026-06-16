@@ -26,10 +26,10 @@
                     <i class="fas fa-play-circle"></i> Прослушиваний: {{ track.plays_count }}
                 </p>
                 
-                <audio controls class="w-100 mb-2" onplay="playTrack(this, {{ track.id }})">
+                <audio controls class="w-100 mb-2" onended="new Image().src='/track/{{ track.id }}/increment-play'">
                     <source src="{{ url_for('uploaded_file', filename=track.filename) }}" type="audio/mpeg">
                 </audio>
-                
+
                 <div class="btn-group w-100">
                     <a href="{{ url_for('uploaded_file', filename=track.filename) }}" class="btn btn-sm btn-success" download>
                         <i class="fas fa-download"></i> Скачать
