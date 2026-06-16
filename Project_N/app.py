@@ -31,9 +31,12 @@ def toggle_theme():
     response = make_response(redirect(request.referrer or '/'))
     response.set_cookie('theme', new_theme, max_age = 365*24*60*60)
     return response
+
+
 @app.context_processor
 def inject_theme():
     return {'theme': request.cookies.get('theme', 'light')}
+
 
 @login_manager.user_loader
 def load_user(user_id):
