@@ -346,7 +346,7 @@ def create_admin():
         admin.set_password('Admin123!')
         db.session.add(admin)
         db.session.commit()
-        print('Администратор создан (логин: admin, пароль: Admin123!)')
+        print('Администратор создан')
 
 
 with app.app_context():
