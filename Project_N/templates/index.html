@@ -78,7 +78,7 @@
                             <i class="fas fa-play-circle"></i> Прослушиваний: {{ track.plays_count }}
                         </p>
 
-                        <audio controls class="w-100 mb-2" onplay="playTrack(this, {{ track.id }})">
+                        <audio controls class="w-100 mb-2" onended="new Image().src='/track/{{ track.id }}/increment-play'">
                             <source src="{{ url_for('uploaded_file', filename=track.filename) }}" type="audio/mpeg">
                         </audio>
 

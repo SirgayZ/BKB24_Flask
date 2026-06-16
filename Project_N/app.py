@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, abort
+from flask import Flask, render_template, make_response, request, flash, redirect, url_for, send_from_directory, abort
 from flask_login import login_user, logout_user, current_user, login_required, LoginManager, UserMixin
 from extensions import db, login_manager
 from datetime import datetime
@@ -23,6 +23,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
+
+@app.route('/toggle-theme')
+def toggle_theme():
+    current_theme = request.cookies.get('theme', 'light')
+    new_theme = 'dark' if current_theme == 'light' else 'light'
+    response = make_response(redirect(request.referrer or '/'))
+    response.set_cookie('theme', new_theme, max_age = 365*24*60*60)
+    return response
+
+
+@app.context_processor
+def inject_theme():
+    return {'theme': request.cookies.get('theme', 'light')}
 
 
 @login_manager.user_loader
@@ -55,11 +68,13 @@ def process_tags(tag_string):
 @app.route('/login', methods=['GET'])
 def login_page():
     form = LoginForm()
-    return render_template('login.html', form=form)
+    theme = request.cookies.get('theme', 'light')
+    return render_template('login.html',theme =theme, form=form)
 
 
 @app.route('/login', methods=['POST'])
 def login():
+    theme = request.cookies.get('theme', 'light')
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -74,6 +89,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    theme = request.cookies.get('theme', 'light')
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -82,12 +98,12 @@ def register():
         existing_user = User.query.filter_by(username=form.username.data).first()
         if existing_user:
             flash('Имя пользователя уже занято', 'danger')
-            return render_template('register.html', form=form)
+            return render_template('register.html', theme=theme, form=form)
 
         existing_email = User.query.filter_by(email=form.email.data).first()
         if existing_email:
             flash('Email уже зарегистрирован', 'danger')
-            return render_template('register.html', form=form)
+            return render_template('register.html', theme=theme, form=form)
 
         user = User(
             username=form.username.data,
@@ -102,7 +118,7 @@ def register():
         flash(f'Добро пожаловать, {form.username.data}!', 'success')
         return redirect(url_for("index"))
 
-    return render_template('register.html', form=form)
+    return render_template('register.html', theme=theme, form=form)
 
 
 @app.route('/logout')
@@ -115,6 +131,7 @@ def logout():
 
 @app.route("/")
 def index():
+    theme = request.cookies.get('theme', 'light')
     tag_name = request.args.get('tag')
 
     query = Track.query.filter(Track.deleted_at.is_(None))
@@ -128,21 +145,23 @@ def index():
     all_tags = Tag.query.all()
     popular_tags = Tag.query.join(Track.tags).group_by(Tag.id).order_by(func.count(Track.id).desc()).limit(10).all()
 
-    return render_template("index.html", tracks=tracks, tags=all_tags, popular_tags=popular_tags, selected_tag=tag_name)
+    return render_template("index.html", theme=theme, tracks=tracks, tags=all_tags, popular_tags=popular_tags, selected_tag=tag_name)
 
 
 @app.route("/my-music")
 @login_required
 def my_music():
+    theme = request.cookies.get('theme', 'light')
     tracks = Track.query.filter_by(user_id=current_user.id, deleted_at=None).order_by(Track.created_at.desc()).all()
-    return render_template("my_music.html", tracks=tracks)
+    return render_template("my_music.html", tracks=tracks, theme=theme)
 
 
 @app.route("/favorites")
 @login_required
 def favorites_page():
+    theme = request.cookies.get('theme', 'light')
     tracks = current_user.favorite_tracks
-    return render_template("favorites.html", tracks=tracks)
+    return render_template("favorites.html", theme=theme, tracks=tracks)
 
 
 @app.route("/favorite/<int:track_id>/toggle")
@@ -164,7 +183,9 @@ def toggle_favorite(track_id):
 @app.route("/track/upload", methods=["GET", "POST"])
 @login_required
 def upload_track():
+
     form = TrackForm()
+    theme = request.cookies.get('theme', 'light')
     if form.validate_on_submit():
         if 'file' not in request.files:
             flash('Файл не выбран', 'danger')
@@ -204,7 +225,7 @@ def upload_track():
         flash(f'Трек "{form.title.data}" успешно загружен', 'success')
         return redirect(url_for('index'))
 
-    return render_template("upload.html", form=form)
+    return render_template("upload.html", form=form, theme=theme)
 
 
 @app.route("/track/delete/<int:track_id>")
@@ -237,18 +258,19 @@ def uploaded_file(filename):
 @app.route("/playlists")
 def playlists_page():
     public_playlists = Playlist.query.filter_by(is_public=True).order_by(Playlist.created_at.desc()).all()
-
+    theme = request.cookies.get('theme', 'light')
     my_playlists = []
     if current_user.is_authenticated:
         my_playlists = Playlist.query.filter_by(user_id=current_user.id, is_public=False).order_by(
             Playlist.created_at.desc()).all()
 
-    return render_template("playlists.html", public_playlists=public_playlists, my_playlists=my_playlists)
+    return render_template("playlists.html", theme=theme, public_playlists=public_playlists, my_playlists=my_playlists)
 
 
 @app.route("/playlist/create", methods=["GET", "POST"])
 @login_required
 def create_playlist():
+    theme = request.cookies.get('theme', 'light')
     form = PlaylistForm()
     if form.validate_on_submit():
         playlist = Playlist(
@@ -262,17 +284,18 @@ def create_playlist():
         flash(f'Плейлист "{playlist.name}" создан!', 'success')
         return redirect(url_for('playlists_page'))
 
-    return render_template("playlist_form.html", form=form, title="Создать плейлист")
+    return render_template("playlist_form.html", theme=theme, form=form, title="Создать плейлист")
 
 
 @app.route("/playlist/<int:playlist_id>")
 def view_playlist(playlist_id):
     playlist = Playlist.query.get_or_404(playlist_id)
+    theme = request.cookies.get('theme', 'light')
 
     if not playlist.is_public and (not current_user.is_authenticated or current_user.id != playlist.user_id):
         abort(403)
 
-    return render_template("playlist_detail.html", playlist=playlist)
+    return render_template("playlist_detail.html", theme=theme, playlist=playlist)
 
 
 @app.route("/playlist/<int:playlist_id>/add-track/<int:track_id>")
