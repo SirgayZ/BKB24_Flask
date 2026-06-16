@@ -354,6 +354,9 @@ def delete_playlist(playlist_id):
 @app.route("/tags")
 def tags_page():
     tags = Tag.query.all()
+    for tag in tags:
+        active_tracks = [track for track in tag.tracks if track.deleted_at is None]
+        tag.active_tracks_count = len(active_tracks)
     return render_template("tags.html", tags=tags)
 
 
